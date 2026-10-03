@@ -1,7 +1,9 @@
+LINT := $(shell go list ./... | grep -v /internal/pogo)
+
 test:
 	@ go vet ./...
-	@ go run honnef.co/go/tools/cmd/staticcheck@latest $(shell go list ./... | grep -v /internal/pogo)
-	@ go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest -fix -test ./...
+	@ go run honnef.co/go/tools/cmd/staticcheck@latest $(LINT)
+	@ go run golang.org/x/tools/gopls/internal/analysis/modernize/cmd/modernize@latest -fix -test $(LINT)
 	@ go test -race ./...
 
 precommit: test
