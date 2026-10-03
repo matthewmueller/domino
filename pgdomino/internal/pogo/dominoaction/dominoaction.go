@@ -28,7 +28,7 @@ type DominoAction struct {
 var _ pogo.Row = (*DominoAction)(nil)
 
 // Decode implements pogo.Row
-func (da *DominoAction) Decode(dominoAction any) error {
+func (da *DominoAction) Decode(dominoAction interface{}) error {
 	_dominoAction, ok := dominoAction.(*DominoAction)
 	if !ok {
 		return fmt.Errorf(`dominoAction decode: "%T" is not a "*DominoAction"`, dominoAction)
@@ -99,8 +99,8 @@ func (da *Input) String() string {
 	return `"public"."domino_actions"`
 }
 
-func (da *Input) columns() map[string]any {
-	columns := make(map[string]any)
+func (da *Input) columns() map[string]interface{} {
+	columns := make(map[string]interface{})
 
 	if da.id != nil {
 		columns["id"] = *da.id
@@ -138,7 +138,7 @@ func NewFilter() *Filter {
 // Filter filters for "public"."domino_actions"
 type Filter struct {
 	formats []string
-	values  []any
+	values  []interface{}
 	error   error
 }
 
@@ -1181,7 +1181,7 @@ func UpdateByID(db pogo.DB, id int64, dominoAction *Input) (*DominoAction, error
 		`RETURNING "id", "name", "position", "rule_id", "settings"`
 
 	// setup the query
-	values := []any{}
+	values := []interface{}{}
 	values = append(values, id)
 	values = append(values, _v...)
 
@@ -1235,7 +1235,7 @@ func (*Model) UpdateByID(db pogo.DB, id int64, dominoAction *Input) (*DominoActi
 		`RETURNING "id", "name", "position", "rule_id", "settings"`
 
 	// setup the query
-	values := []any{}
+	values := []interface{}{}
 	values = append(values, id)
 	values = append(values, _v...)
 
@@ -1290,7 +1290,7 @@ func UpdateByPositionAndRuleID(db pogo.DB, position int, ruleID int64, dominoAct
 		`RETURNING "id", "name", "position", "rule_id", "settings"`
 
 	// setup the query
-	values := []any{}
+	values := []interface{}{}
 	values = append(values, position)
 	values = append(values, ruleID)
 	values = append(values, _v...)
@@ -1346,7 +1346,7 @@ func (*Model) UpdateByPositionAndRuleID(db pogo.DB, position int, ruleID int64, 
 		`RETURNING "id", "name", "position", "rule_id", "settings"`
 
 	// setup the query
-	values := []any{}
+	values := []interface{}{}
 	values = append(values, position)
 	values = append(values, ruleID)
 	values = append(values, _v...)
@@ -1824,7 +1824,7 @@ func (*Model) UpsertByPositionAndRuleID(db pogo.DB, position int, ruleID int64, 
 }
 
 // slice converts our columns into something the sql driver can understand
-func slice(columns map[string]any, offset int) (c []string, i []string, v []any) {
+func slice(columns map[string]interface{}, offset int) (c []string, i []string, v []interface{}) {
 	n := offset + 1
 	for col, val := range columns {
 		c = append(c, strconv.Quote(col))

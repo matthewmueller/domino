@@ -164,17 +164,17 @@ func TestDispatchOtherEvent(t *testing.T) {
 // failStore fails the test if it's used
 type failStore struct{ t testing.TB }
 
-func (s failStore) Save(ctx context.Context, ownerID string, rule *domino.Rule) error {
+func (s failStore) Save(ctx context.Context, owner string, rule *domino.Rule) error {
 	s.t.Fatal("unexpected Save")
 	return nil
 }
 
-func (s failStore) List(ctx context.Context, ownerID string, triggers ...string) ([]*domino.Rule, error) {
+func (s failStore) List(ctx context.Context, owner string, triggers ...string) ([]*domino.Rule, error) {
 	s.t.Fatal("unexpected List")
 	return nil, nil
 }
 
-func (s failStore) Delete(ctx context.Context, ownerID, id string) error {
+func (s failStore) Delete(ctx context.Context, owner, id string) error {
 	s.t.Fatal("unexpected Delete")
 	return nil
 }
@@ -695,9 +695,9 @@ type spyStore struct {
 	triggers []string
 }
 
-func (s *spyStore) List(ctx context.Context, ownerID string, triggers ...string) ([]*domino.Rule, error) {
+func (s *spyStore) List(ctx context.Context, owner string, triggers ...string) ([]*domino.Rule, error) {
 	s.triggers = triggers
-	return s.Store.List(ctx, ownerID, triggers...)
+	return s.Store.List(ctx, owner, triggers...)
 }
 
 func TestDispatchListsFired(t *testing.T) {

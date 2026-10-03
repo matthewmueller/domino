@@ -42,14 +42,14 @@ type Store interface {
 	// Save inserts the rule when its ID is empty, setting the ID, and updates it
 	// otherwise. Updating a rule that doesn't exist for the owner returns
 	// ErrNotFound.
-	Save(ctx context.Context, ownerID string, rule *Rule) error
+	Save(ctx context.Context, owner string, rule *Rule) error
 	// List returns the owner's rules in the order they were created. When
 	// triggers are given, only rules on those triggers are needed; Dispatch
 	// passes the triggers an event fired so stores can load less.
-	List(ctx context.Context, ownerID string, triggers ...string) ([]*Rule, error)
+	List(ctx context.Context, owner string, triggers ...string) ([]*Rule, error)
 	// Delete removes a rule, returning ErrNotFound if it doesn't exist for the
 	// owner
-	Delete(ctx context.Context, ownerID, id string) error
+	Delete(ctx context.Context, owner, id string) error
 }
 
 // ErrNotFound is returned by a Store when a rule doesn't exist for the owner
@@ -202,29 +202,29 @@ var _ Store = (*Engine)(nil)
 // Save validates the rule, then stores it for the owner: inserted when its ID
 // is empty, setting the ID, or updated otherwise. Take the owner from the
 // authenticated session, not from submitted input.
-func (e *Engine) Save(ctx context.Context, ownerID string, rule *Rule) error {
+func (e *Engine) Save(ctx context.Context, owner string, rule *Rule) error {
 	if err := e.Validate(rule); err != nil {
 		return err
 	}
-	return e.Store.Save(ctx, ownerID, rule)
+	return e.Store.Save(ctx, owner, rule)
 }
 
 // List returns the owner's rules in the order they were created, only those on
 // triggers if any are given
-func (e *Engine) List(ctx context.Context, ownerID string, triggers ...string) ([]*Rule, error) {
-	return e.Store.List(ctx, ownerID, triggers...)
+func (e *Engine) List(ctx context.Context, owner string, triggers ...string) ([]*Rule, error) {
+	return e.Store.List(ctx, owner, triggers...)
 }
 
 // Delete removes a rule, returning ErrNotFound if it doesn't exist for the
 // owner
-func (e *Engine) Delete(ctx context.Context, ownerID, id string) error {
-	return e.Store.Delete(ctx, ownerID, id)
+func (e *Engine) Delete(ctx context.Context, owner, id string) error {
+	return e.Store.Delete(ctx, owner, id)
 }
 
 // Dispatch runs the owner's rules whose trigger fires for event, in the order
 // the Store lists them. It's an error if no trigger is defined for E. A failing
 // rule doesn't stop the others; errors are joined.
-func (e *Engine) Dispatch[E any](ctx context.Context, ownerID string, event *E) error {
+func (e *Engine) Dispatch[E any](ctx context.Context, owner string, event *E) error {
 	triggers := e.byEvent[reflect.TypeFor[E]()]
 	if len(triggers) == 0 {
 		return fmt.Errorf("domino: no triggers for %T", event)
@@ -240,7 +240,7 @@ func (e *Engine) Dispatch[E any](ctx context.Context, ownerID string, event *E) 
 	if len(fired) == 0 {
 		return nil
 	}
-	rules, err := e.Store.List(ctx, ownerID, names...)
+	rules, err := e.Store.List(ctx, owner, names...)
 	if err != nil {
 		return fmt.Errorf("domino: listing rules: %w", err)
 	}

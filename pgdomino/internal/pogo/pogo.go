@@ -19,17 +19,17 @@ import (
 // This should work with database/sql.DB and database/sql.Tx.
 
 type DB interface {
-	Exec(context.Context, string, ...any) (pgconn.CommandTag, error)
-	Query(context.Context, string, ...any) (pgx.Rows, error)
-	QueryRow(context.Context, string, ...any) pgx.Row
+	Exec(context.Context, string, ...interface{}) (pgconn.CommandTag, error)
+	Query(context.Context, string, ...interface{}) (pgx.Rows, error)
+	QueryRow(context.Context, string, ...interface{}) pgx.Row
 }
 
 // Log function. Override this with the logger of your choice
-var Log = func(string, ...any) {}
+var Log = func(string, ...interface{}) {}
 
 // Conditions turns a list of conditions into
 // sql clauses and params
-func Conditions(conds ...Condition) (sql string, params []any, err error) {
+func Conditions(conds ...Condition) (sql string, params []interface{}, err error) {
 	var wheres []string
 	var groupbys []string
 	var orderbys []string
@@ -43,7 +43,7 @@ func Conditions(conds ...Condition) (sql string, params []any, err error) {
 		}
 		switch clause.Type {
 		case "WHERE":
-			var refs []any
+			var refs []interface{}
 			for _, param := range clause.Params {
 				ith++
 				refs = append(refs, "$"+strconv.Itoa(ith))
@@ -51,7 +51,7 @@ func Conditions(conds ...Condition) (sql string, params []any, err error) {
 			}
 			wheres = append(wheres, fmt.Sprintf(clause.Format, refs...))
 		case "GROUP BY":
-			var refs []any
+			var refs []interface{}
 			for _, param := range clause.Params {
 				ith++
 				refs = append(refs, "$"+strconv.Itoa(ith))
@@ -59,7 +59,7 @@ func Conditions(conds ...Condition) (sql string, params []any, err error) {
 			}
 			groupbys = append(groupbys, fmt.Sprintf(clause.Format, refs...))
 		case "ORDER BY":
-			var refs []any
+			var refs []interface{}
 			for _, param := range clause.Params {
 				ith++
 				refs = append(refs, "$"+strconv.Itoa(ith))
@@ -67,7 +67,7 @@ func Conditions(conds ...Condition) (sql string, params []any, err error) {
 			}
 			orderbys = append(orderbys, fmt.Sprintf(clause.Format, refs...))
 		case "LIMIT":
-			var refs []any
+			var refs []interface{}
 			for _, param := range clause.Params {
 				ith++
 				refs = append(refs, "$"+strconv.Itoa(ith))
@@ -106,7 +106,7 @@ type Condition interface {
 type Clause struct {
 	Type   string
 	Format string
-	Params []any
+	Params []interface{}
 	Error  error
 }
 
@@ -120,7 +120,7 @@ type Insertable interface {
 // Row interface allows you to pull out
 // the specific models in a generic way
 type Row interface {
-	Decode(v any) error
+	Decode(v interface{}) error
 }
 
 // IsErrNoRows checks if an error was

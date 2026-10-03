@@ -1,12 +1,12 @@
 create table domino_rules (
   id          bigint generated always as identity primary key,
-  owner_id    text not null,
+  owner       text not null,
   name        text not null,
   trigger     text not null,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
-create index domino_rules_owner_id_trigger on domino_rules (owner_id, trigger);
+create index domino_rules_owner_trigger on domino_rules (owner, trigger);
 
 create table domino_conditions (
   id       bigint generated always as identity primary key,

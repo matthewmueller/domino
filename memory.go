@@ -17,18 +17,18 @@ type memoryStore struct {
 }
 
 type ownedRule struct {
-	ownerID string
-	rule    *Rule
+	owner string
+	rule  *Rule
 }
 
 var _ Store = (*memoryStore)(nil)
 
-func (m *memoryStore) Save(ctx context.Context, ownerID string, rule *Rule) error {
+func (m *memoryStore) Save(ctx context.Context, owner string, rule *Rule) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	i := -1
 	if rule.ID != "" {
-		if i = m.find(ownerID, rule.ID); i < 0 {
+		if i = m.find(owner, rule.ID); i < 0 {
 			return ErrNotFound
 		}
 	}
@@ -43,16 +43,16 @@ func (m *memoryStore) Save(ctx context.Context, ownerID string, rule *Rule) erro
 	m.next++
 	rule.ID = strconv.Itoa(m.next)
 	stored.ID = rule.ID
-	m.rules = append(m.rules, &ownedRule{ownerID, stored})
+	m.rules = append(m.rules, &ownedRule{owner, stored})
 	return nil
 }
 
-func (m *memoryStore) List(ctx context.Context, ownerID string, triggers ...string) ([]*Rule, error) {
+func (m *memoryStore) List(ctx context.Context, owner string, triggers ...string) ([]*Rule, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	var rules []*Rule
 	for _, owned := range m.rules {
-		if owned.ownerID != ownerID {
+		if owned.owner != owner {
 			continue
 		}
 		if len(triggers) > 0 && !slices.Contains(triggers, owned.rule.Trigger) {
@@ -67,10 +67,10 @@ func (m *memoryStore) List(ctx context.Context, ownerID string, triggers ...stri
 	return rules, nil
 }
 
-func (m *memoryStore) Delete(ctx context.Context, ownerID, id string) error {
+func (m *memoryStore) Delete(ctx context.Context, owner, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	i := m.find(ownerID, id)
+	i := m.find(owner, id)
 	if i < 0 {
 		return ErrNotFound
 	}
@@ -78,9 +78,9 @@ func (m *memoryStore) Delete(ctx context.Context, ownerID, id string) error {
 	return nil
 }
 
-func (m *memoryStore) find(ownerID, id string) int {
+func (m *memoryStore) find(owner, id string) int {
 	return slices.IndexFunc(m.rules, func(owned *ownedRule) bool {
-		return owned.ownerID == ownerID && owned.rule.ID == id
+		return owned.owner == owner && owned.rule.ID == id
 	})
 }
 

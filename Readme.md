@@ -127,9 +127,9 @@ Rules are stored in memory by default. To persist them, set `engine.Store` befor
 
 ```go
 type Store interface {
-	Save(ctx context.Context, ownerID string, rule *Rule) error // inserts when ID is "", otherwise updates
-	List(ctx context.Context, ownerID string, triggers ...string) ([]*Rule, error) // in creation order
-	Delete(ctx context.Context, ownerID, id string) error
+	Save(ctx context.Context, owner string, rule *Rule) error // inserts when ID is "", otherwise updates
+	List(ctx context.Context, owner string, triggers ...string) ([]*Rule, error) // in creation order
+	Delete(ctx context.Context, owner, id string) error
 }
 ```
 

@@ -19,18 +19,18 @@ var ErrDominoRuleNotFound = errors.New("dominoRule not found")
 
 // DominoRule result data for "public"."domino_rules"
 type DominoRule struct {
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
 	ID        int64     `json:"id,omitempty"`
 	Name      string    `json:"name,omitempty"`
-	OwnerID   string    `json:"owner_id,omitempty"`
+	Owner     string    `json:"owner,omitempty"`
 	Trigger   string    `json:"trigger,omitempty"`
-	UpdatedAt time.Time `json:"updated_at"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
 var _ pogo.Row = (*DominoRule)(nil)
 
 // Decode implements pogo.Row
-func (dr *DominoRule) Decode(dominoRule any) error {
+func (dr *DominoRule) Decode(dominoRule interface{}) error {
 	_dominoRule, ok := dominoRule.(*DominoRule)
 	if !ok {
 		return fmt.Errorf(`dominoRule decode: "%T" is not a "*DominoRule"`, dominoRule)
@@ -49,7 +49,7 @@ type Input struct {
 	createdAt *time.Time
 	id        *int64
 	name      *string
-	ownerID   *string
+	owner     *string
 	trigger   *string
 	updatedAt *time.Time
 }
@@ -74,9 +74,9 @@ func (dr *Input) Name(name string) *Input {
 	return dr
 }
 
-// OwnerID sets the owner_id
-func (dr *Input) OwnerID(ownerID string) *Input {
-	dr.ownerID = &ownerID
+// Owner sets the owner
+func (dr *Input) Owner(owner string) *Input {
+	dr.owner = &owner
 	return dr
 }
 
@@ -108,8 +108,8 @@ func (dr *Input) String() string {
 	return `"public"."domino_rules"`
 }
 
-func (dr *Input) columns() map[string]any {
-	columns := make(map[string]any)
+func (dr *Input) columns() map[string]interface{} {
+	columns := make(map[string]interface{})
 
 	if dr.createdAt != nil {
 		columns["created_at"] = *dr.createdAt
@@ -123,8 +123,8 @@ func (dr *Input) columns() map[string]any {
 		columns["name"] = *dr.name
 	}
 
-	if dr.ownerID != nil {
-		columns["owner_id"] = *dr.ownerID
+	if dr.owner != nil {
+		columns["owner"] = *dr.owner
 	}
 
 	if dr.trigger != nil {
@@ -151,7 +151,7 @@ func NewFilter() *Filter {
 // Filter filters for "public"."domino_rules"
 type Filter struct {
 	formats []string
-	values  []any
+	values  []interface{}
 	error   error
 }
 
@@ -459,92 +459,92 @@ func (f *Filter) NameNotIn(v ...string) *Filter {
 	return f
 }
 
-// OwnerID owner_id equals
-func (f *Filter) OwnerID(v string) *Filter {
-	f.formats = append(f.formats, `"owner_id" = %s`)
+// Owner owner equals
+func (f *Filter) Owner(v string) *Filter {
+	f.formats = append(f.formats, `"owner" = %s`)
 	f.values = append(f.values, v)
 	return f
 }
 
-// OwnerIDNot owner_id doesn't equal
-func (f *Filter) OwnerIDNot(v string) *Filter {
-	f.formats = append(f.formats, `"owner_id" != %s`)
+// OwnerNot owner doesn't equal
+func (f *Filter) OwnerNot(v string) *Filter {
+	f.formats = append(f.formats, `"owner" != %s`)
 	f.values = append(f.values, v)
 	return f
 }
 
-// OwnerIDContains owner_id contains
-func (f *Filter) OwnerIDContains(v string) *Filter {
-	f.formats = append(f.formats, `"owner_id" LIKE '%%' || %s || '%%'`)
+// OwnerContains owner contains
+func (f *Filter) OwnerContains(v string) *Filter {
+	f.formats = append(f.formats, `"owner" LIKE '%%' || %s || '%%'`)
 	f.values = append(f.values, v)
 	return f
 }
 
-// OwnerIDNotContains owner_id doesn't contain
-func (f *Filter) OwnerIDNotContains(v string) *Filter {
-	f.formats = append(f.formats, `"owner_id" NOT LIKE '%%' || %s || '%%'`)
+// OwnerNotContains owner doesn't contain
+func (f *Filter) OwnerNotContains(v string) *Filter {
+	f.formats = append(f.formats, `"owner" NOT LIKE '%%' || %s || '%%'`)
 	f.values = append(f.values, v)
 	return f
 }
 
-// OwnerIDStartsWith owner_id starts with
-func (f *Filter) OwnerIDStartsWith(v string) *Filter {
-	f.formats = append(f.formats, `"owner_id" LIKE %s || '%%'`)
+// OwnerStartsWith owner starts with
+func (f *Filter) OwnerStartsWith(v string) *Filter {
+	f.formats = append(f.formats, `"owner" LIKE %s || '%%'`)
 	f.values = append(f.values, v)
 	return f
 }
 
-// OwnerIDNotStartsWith owner_id doesn't start with
-func (f *Filter) OwnerIDNotStartsWith(v string) *Filter {
-	f.formats = append(f.formats, `"owner_id" NOT LIKE %s || '%%'`)
+// OwnerNotStartsWith owner doesn't start with
+func (f *Filter) OwnerNotStartsWith(v string) *Filter {
+	f.formats = append(f.formats, `"owner" NOT LIKE %s || '%%'`)
 	f.values = append(f.values, v)
 	return f
 }
 
-// OwnerIDEndsWith owner_id ends with
-func (f *Filter) OwnerIDEndsWith(v string) *Filter {
-	f.formats = append(f.formats, `"owner_id" LIKE '%%' || %s`)
+// OwnerEndsWith owner ends with
+func (f *Filter) OwnerEndsWith(v string) *Filter {
+	f.formats = append(f.formats, `"owner" LIKE '%%' || %s`)
 	f.values = append(f.values, v)
 	return f
 }
 
-// OwnerIDNotEndsWith owner_id doesn't end with
-func (f *Filter) OwnerIDNotEndsWith(v string) *Filter {
-	f.formats = append(f.formats, `"owner_id" NOT LIKE '%%' || %s`)
+// OwnerNotEndsWith owner doesn't end with
+func (f *Filter) OwnerNotEndsWith(v string) *Filter {
+	f.formats = append(f.formats, `"owner" NOT LIKE '%%' || %s`)
 	f.values = append(f.values, v)
 	return f
 }
 
-// OwnerIDLt owner_id is less than
-func (f *Filter) OwnerIDLt(v string) *Filter {
-	f.formats = append(f.formats, `"owner_id" < %s`)
+// OwnerLt owner is less than
+func (f *Filter) OwnerLt(v string) *Filter {
+	f.formats = append(f.formats, `"owner" < %s`)
 	f.values = append(f.values, v)
 	return f
 }
 
-// OwnerIDLte owner_id is less than or equal
-func (f *Filter) OwnerIDLte(v string) *Filter {
-	f.formats = append(f.formats, `"owner_id" <= %s`)
+// OwnerLte owner is less than or equal
+func (f *Filter) OwnerLte(v string) *Filter {
+	f.formats = append(f.formats, `"owner" <= %s`)
 	f.values = append(f.values, v)
 	return f
 }
 
-// OwnerIDGt owner_id is greater than
-func (f *Filter) OwnerIDGt(v string) *Filter {
-	f.formats = append(f.formats, `"owner_id" > %s`)
+// OwnerGt owner is greater than
+func (f *Filter) OwnerGt(v string) *Filter {
+	f.formats = append(f.formats, `"owner" > %s`)
 	f.values = append(f.values, v)
 	return f
 }
 
-// OwnerIDGte owner_id is greater than or equal
-func (f *Filter) OwnerIDGte(v string) *Filter {
-	f.formats = append(f.formats, `"owner_id" >= %s`)
+// OwnerGte owner is greater than or equal
+func (f *Filter) OwnerGte(v string) *Filter {
+	f.formats = append(f.formats, `"owner" >= %s`)
 	f.values = append(f.values, v)
 	return f
 }
 
-// OwnerIDIn owner_id is in
-func (f *Filter) OwnerIDIn(v ...string) *Filter {
+// OwnerIn owner is in
+func (f *Filter) OwnerIn(v ...string) *Filter {
 	var rs []string
 	if len(v) == 0 {
 		f.formats = append(f.formats, `false`)
@@ -553,15 +553,15 @@ func (f *Filter) OwnerIDIn(v ...string) *Filter {
 	for range v {
 		rs = append(rs, "%s")
 	}
-	f.formats = append(f.formats, fmt.Sprintf(`"owner_id" IN (%s)`, strings.Join(rs, `, `)))
+	f.formats = append(f.formats, fmt.Sprintf(`"owner" IN (%s)`, strings.Join(rs, `, `)))
 	for _, i := range v {
 		f.values = append(f.values, i)
 	}
 	return f
 }
 
-// OwnerIDNotIn owner_id is not in
-func (f *Filter) OwnerIDNotIn(v ...string) *Filter {
+// OwnerNotIn owner is not in
+func (f *Filter) OwnerNotIn(v ...string) *Filter {
 	var rs []string
 	if len(v) == 0 {
 		f.formats = append(f.formats, `false`)
@@ -570,7 +570,7 @@ func (f *Filter) OwnerIDNotIn(v ...string) *Filter {
 	for range v {
 		rs = append(rs, "%s")
 	}
-	f.formats = append(f.formats, fmt.Sprintf(`"owner_id" NOT IN (%s)`, strings.Join(rs, `, `)))
+	f.formats = append(f.formats, fmt.Sprintf(`"owner" NOT IN (%s)`, strings.Join(rs, `, `)))
 	for _, i := range v {
 		f.values = append(f.values, i)
 	}
@@ -820,9 +820,9 @@ func (o *Orderer) Name(order OrderBy) *Orderer {
 	return o
 }
 
-// OwnerID sorts "owner_id" by an expression
-func (o *Orderer) OwnerID(order OrderBy) *Orderer {
-	o.formats = append(o.formats, fmt.Sprintf(`"owner_id" %s`, order))
+// Owner sorts "owner" by an expression
+func (o *Orderer) Owner(order OrderBy) *Orderer {
+	o.formats = append(o.formats, fmt.Sprintf(`"owner" %s`, order))
 	return o
 }
 
@@ -855,13 +855,13 @@ func Insert(db pogo.DB, dominoRule *Input) (*DominoRule, error) {
 		sqlstr = `
       INSERT INTO "public"."domino_rules"
       DEFAULT VALUES
-      RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"
+      RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"
     `
 	} else {
 		sqlstr = `
       INSERT INTO "public"."domino_rules" (` + strings.Join(_c, ", ") + `)
       VALUES (` + strings.Join(_i, ", ") + `)
-      RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"
+      RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"
     `
 	}
 
@@ -872,7 +872,7 @@ func Insert(db pogo.DB, dominoRule *Input) (*DominoRule, error) {
 
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		return nil, e
 	}
 
@@ -891,13 +891,13 @@ func (*Model) Insert(db pogo.DB, dominoRule *Input) (*DominoRule, error) {
 		sqlstr = `
       INSERT INTO "public"."domino_rules"
       DEFAULT VALUES
-      RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"
+      RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"
     `
 	} else {
 		sqlstr = `
       INSERT INTO "public"."domino_rules" (` + strings.Join(_c, ", ") + `)
       VALUES (` + strings.Join(_i, ", ") + `)
-      RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"
+      RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"
     `
 	}
 
@@ -908,7 +908,7 @@ func (*Model) Insert(db pogo.DB, dominoRule *Input) (*DominoRule, error) {
 
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		return nil, e
 	}
 
@@ -949,7 +949,7 @@ func Find(db pogo.DB, conds ...pogo.Condition) (*DominoRule, error) {
 	}
 
 	// sql select query, primary key provided by sequence
-	sqlstr := `SELECT "created_at", "id", "name", "owner_id", "trigger", "updated_at" ` +
+	sqlstr := `SELECT "created_at", "id", "name", "owner", "trigger", "updated_at" ` +
 		`FROM "public"."domino_rules" ` +
 		_s
 
@@ -960,7 +960,7 @@ func Find(db pogo.DB, conds ...pogo.Condition) (*DominoRule, error) {
 
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		if pogo.IsNoRows(e) {
 			return nil, ErrDominoRuleNotFound
 		}
@@ -978,7 +978,7 @@ func (*Model) Find(db pogo.DB, conds ...pogo.Condition) (*DominoRule, error) {
 	}
 
 	// sql select query, primary key provided by sequence
-	sqlstr := `SELECT "created_at", "id", "name", "owner_id", "trigger", "updated_at" ` +
+	sqlstr := `SELECT "created_at", "id", "name", "owner", "trigger", "updated_at" ` +
 		`FROM "public"."domino_rules" ` +
 		_s
 
@@ -989,7 +989,7 @@ func (*Model) Find(db pogo.DB, conds ...pogo.Condition) (*DominoRule, error) {
 
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		if pogo.IsNoRows(e) {
 			return nil, ErrDominoRuleNotFound
 		}
@@ -1003,7 +1003,7 @@ func (*Model) Find(db pogo.DB, conds ...pogo.Condition) (*DominoRule, error) {
 func FindByID(db pogo.DB, id int64) (*DominoRule, error) {
 	// sql select query, primary key provided by sequence
 	sqlstr := `
-    SELECT "created_at", "id", "name", "owner_id", "trigger", "updated_at"
+    SELECT "created_at", "id", "name", "owner", "trigger", "updated_at"
     FROM "public"."domino_rules"
     WHERE "id" = $1
   `
@@ -1015,7 +1015,7 @@ func FindByID(db pogo.DB, id int64) (*DominoRule, error) {
 
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, id)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		if pogo.IsNoRows(e) {
 			return nil, ErrDominoRuleNotFound
 		}
@@ -1029,7 +1029,7 @@ func FindByID(db pogo.DB, id int64) (*DominoRule, error) {
 func (*Model) FindByID(db pogo.DB, id int64) (*DominoRule, error) {
 	// sql select query, primary key provided by sequence
 	sqlstr := `
-    SELECT "created_at", "id", "name", "owner_id", "trigger", "updated_at"
+    SELECT "created_at", "id", "name", "owner", "trigger", "updated_at"
     FROM "public"."domino_rules"
     WHERE "id" = $1
   `
@@ -1041,7 +1041,7 @@ func (*Model) FindByID(db pogo.DB, id int64) (*DominoRule, error) {
 
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, id)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		if pogo.IsNoRows(e) {
 			return nil, ErrDominoRuleNotFound
 		}
@@ -1061,7 +1061,7 @@ func FindMany(db pogo.DB, conds ...pogo.Condition) ([]*DominoRule, error) {
 	}
 
 	// sql select query, primary key provided by sequence
-	sqlstr := `SELECT "created_at", "id", "name", "owner_id", "trigger", "updated_at" ` +
+	sqlstr := `SELECT "created_at", "id", "name", "owner", "trigger", "updated_at" ` +
 		`FROM "public"."domino_rules" ` +
 		_s
 
@@ -1078,7 +1078,7 @@ func FindMany(db pogo.DB, conds ...pogo.Condition) ([]*DominoRule, error) {
 
 	for rows.Next() {
 		var _dominoRule DominoRule
-		if e := rows.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+		if e := rows.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 			if pogo.IsNoRows(e) {
 				return dominosRules, ErrDominoRuleNotFound
 			}
@@ -1103,7 +1103,7 @@ func (*Model) FindMany(db pogo.DB, conds ...pogo.Condition) ([]*DominoRule, erro
 	}
 
 	// sql select query, primary key provided by sequence
-	sqlstr := `SELECT "created_at", "id", "name", "owner_id", "trigger", "updated_at" ` +
+	sqlstr := `SELECT "created_at", "id", "name", "owner", "trigger", "updated_at" ` +
 		`FROM "public"."domino_rules" ` +
 		_s
 
@@ -1120,7 +1120,7 @@ func (*Model) FindMany(db pogo.DB, conds ...pogo.Condition) ([]*DominoRule, erro
 
 	for rows.Next() {
 		var _dominoRule DominoRule
-		if e := rows.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+		if e := rows.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 			if pogo.IsNoRows(e) {
 				return dominosRules, ErrDominoRuleNotFound
 			}
@@ -1163,7 +1163,7 @@ func Update(db pogo.DB, dominoRule *Input, conds ...pogo.Condition) (*DominoRule
 	sqlstr := `UPDATE "public"."domino_rules" SET ` +
 		strings.Join(_u, ", ") + ` ` +
 		_s + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1173,7 +1173,7 @@ func Update(db pogo.DB, dominoRule *Input, conds ...pogo.Condition) (*DominoRule
 	// run the query
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		if pogo.IsNoRows(e) {
 			return nil, ErrDominoRuleNotFound
 		}
@@ -1211,7 +1211,7 @@ func (*Model) Update(db pogo.DB, dominoRule *Input, conds ...pogo.Condition) (*D
 	sqlstr := `UPDATE "public"."domino_rules" SET ` +
 		strings.Join(_u, ", ") + ` ` +
 		_s + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1221,7 +1221,7 @@ func (*Model) Update(db pogo.DB, dominoRule *Input, conds ...pogo.Condition) (*D
 	// run the query
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		if pogo.IsNoRows(e) {
 			return nil, ErrDominoRuleNotFound
 		}
@@ -1261,7 +1261,7 @@ func UpdateMany(db pogo.DB, dominoRule *Input, conds ...pogo.Condition) ([]*Domi
 	sqlstr := `UPDATE "public"."domino_rules" SET ` +
 		strings.Join(_u, ", ") + ` ` +
 		_s + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1276,7 +1276,7 @@ func UpdateMany(db pogo.DB, dominoRule *Input, conds ...pogo.Condition) ([]*Domi
 
 	for rows.Next() {
 		var _dominoRule DominoRule
-		if e := rows.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+		if e := rows.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 			if pogo.IsNoRows(e) {
 				return dominosRules, ErrDominoRuleNotFound
 			}
@@ -1321,7 +1321,7 @@ func (*Model) UpdateMany(db pogo.DB, dominoRule *Input, conds ...pogo.Condition)
 	sqlstr := `UPDATE "public"."domino_rules" SET ` +
 		strings.Join(_u, ", ") + ` ` +
 		_s + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1336,7 +1336,7 @@ func (*Model) UpdateMany(db pogo.DB, dominoRule *Input, conds ...pogo.Condition)
 
 	for rows.Next() {
 		var _dominoRule DominoRule
-		if e := rows.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+		if e := rows.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 			if pogo.IsNoRows(e) {
 				return dominosRules, ErrDominoRuleNotFound
 			}
@@ -1380,10 +1380,10 @@ func UpdateByID(db pogo.DB, id int64, dominoRule *Input) (*DominoRule, error) {
 	sqlstr := `UPDATE "public"."domino_rules" SET ` +
 		strings.Join(_u, ", ") + ` ` +
 		`WHERE "id" = $1 ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// setup the query
-	values := []any{}
+	values := []interface{}{}
 	values = append(values, id)
 	values = append(values, _v...)
 
@@ -1395,7 +1395,7 @@ func UpdateByID(db pogo.DB, id int64, dominoRule *Input) (*DominoRule, error) {
 	// run the query
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, values...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		if pogo.IsNoRows(e) {
 			return nil, ErrDominoRuleNotFound
 		}
@@ -1434,10 +1434,10 @@ func (*Model) UpdateByID(db pogo.DB, id int64, dominoRule *Input) (*DominoRule, 
 	sqlstr := `UPDATE "public"."domino_rules" SET ` +
 		strings.Join(_u, ", ") + ` ` +
 		`WHERE "id" = $1 ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// setup the query
-	values := []any{}
+	values := []interface{}{}
 	values = append(values, id)
 	values = append(values, _v...)
 
@@ -1449,7 +1449,7 @@ func (*Model) UpdateByID(db pogo.DB, id int64, dominoRule *Input) (*DominoRule, 
 	// run the query
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, values...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		if pogo.IsNoRows(e) {
 			return nil, ErrDominoRuleNotFound
 		}
@@ -1470,7 +1470,7 @@ func Delete(db pogo.DB, conds ...pogo.Condition) (*DominoRule, error) {
 	// sql delete query
 	sqlstr := `DELETE FROM "public"."domino_rules" ` +
 		_s + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1479,7 +1479,7 @@ func Delete(db pogo.DB, conds ...pogo.Condition) (*DominoRule, error) {
 
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		if pogo.IsNoRows(e) {
 			return nil, ErrDominoRuleNotFound
 		}
@@ -1500,7 +1500,7 @@ func (*Model) Delete(db pogo.DB, conds ...pogo.Condition) (*DominoRule, error) {
 	// sql delete query
 	sqlstr := `DELETE FROM "public"."domino_rules" ` +
 		_s + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1509,7 +1509,7 @@ func (*Model) Delete(db pogo.DB, conds ...pogo.Condition) (*DominoRule, error) {
 
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		if pogo.IsNoRows(e) {
 			return nil, ErrDominoRuleNotFound
 		}
@@ -1531,7 +1531,7 @@ func DeleteMany(db pogo.DB, conds ...pogo.Condition) ([]*DominoRule, error) {
 	// sql delete query
 	sqlstr := `DELETE FROM "public"."domino_rules" ` +
 		_s + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1546,7 +1546,7 @@ func DeleteMany(db pogo.DB, conds ...pogo.Condition) ([]*DominoRule, error) {
 
 	for rows.Next() {
 		var _dominoRule DominoRule
-		if e := rows.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+		if e := rows.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 			if pogo.IsNoRows(e) {
 				return dominosRules, ErrDominoRuleNotFound
 			}
@@ -1573,7 +1573,7 @@ func (*Model) DeleteMany(db pogo.DB, conds ...pogo.Condition) ([]*DominoRule, er
 	// sql delete query
 	sqlstr := `DELETE FROM "public"."domino_rules" ` +
 		_s + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1588,7 +1588,7 @@ func (*Model) DeleteMany(db pogo.DB, conds ...pogo.Condition) ([]*DominoRule, er
 
 	for rows.Next() {
 		var _dominoRule DominoRule
-		if e := rows.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+		if e := rows.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 			if pogo.IsNoRows(e) {
 				return dominosRules, ErrDominoRuleNotFound
 			}
@@ -1608,7 +1608,7 @@ func DeleteByID(db pogo.DB, id int64) (*DominoRule, error) {
 	// sql delete query
 	sqlstr := `DELETE FROM "public"."domino_rules" ` +
 		`WHERE "id" = $1 ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1618,7 +1618,7 @@ func DeleteByID(db pogo.DB, id int64) (*DominoRule, error) {
 	// run the query
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, id)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		if pogo.IsNoRows(e) {
 			return nil, ErrDominoRuleNotFound
 		}
@@ -1633,7 +1633,7 @@ func (*Model) DeleteByID(db pogo.DB, id int64) (*DominoRule, error) {
 	// sql delete query
 	sqlstr := `DELETE FROM "public"."domino_rules" ` +
 		`WHERE "id" = $1 ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1643,7 +1643,7 @@ func (*Model) DeleteByID(db pogo.DB, id int64) (*DominoRule, error) {
 	// run the query
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, id)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil {
 		if pogo.IsNoRows(e) {
 			return nil, ErrDominoRuleNotFound
 		}
@@ -1669,7 +1669,7 @@ func Upsert(db pogo.DB, dominoRule *Input) (*DominoRule, error) {
 		`VALUES (` + strings.Join(_i, ", ") + `) ` +
 		`ON CONFLICT ("id") ` +
 		`DO UPDATE SET ` + strings.Join(_u, ", ") + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1679,7 +1679,7 @@ func Upsert(db pogo.DB, dominoRule *Input) (*DominoRule, error) {
 	// run query
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil && !pogo.IsNoRows(e) {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil && !pogo.IsNoRows(e) {
 		return nil, e
 	}
 
@@ -1702,7 +1702,7 @@ func (*Model) Upsert(db pogo.DB, dominoRule *Input) (*DominoRule, error) {
 		`VALUES (` + strings.Join(_i, ", ") + `) ` +
 		`ON CONFLICT ("id") ` +
 		`DO UPDATE SET ` + strings.Join(_u, ", ") + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1712,17 +1712,17 @@ func (*Model) Upsert(db pogo.DB, dominoRule *Input) (*DominoRule, error) {
 	// run query
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil && !pogo.IsNoRows(e) {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil && !pogo.IsNoRows(e) {
 		return nil, e
 	}
 
 	return &_dominoRule, nil
 }
 
-// UpsertByOwnerIDAndTrigger inserts a `"public"."domino_rules"`, updating the row if `"owner_id", "trigger"` already exists.
-func UpsertByOwnerIDAndTrigger(db pogo.DB, ownerID string, trigger string, dominoRule *Input) (*DominoRule, error) {
+// UpsertByOwnerAndTrigger inserts a `"public"."domino_rules"`, updating the row if `"owner", "trigger"` already exists.
+func UpsertByOwnerAndTrigger(db pogo.DB, owner string, trigger string, dominoRule *Input) (*DominoRule, error) {
 	// add values to input, overriding existing keys if present in the input
-	dominoRule = dominoRule.OwnerID(ownerID).Trigger(trigger)
+	dominoRule = dominoRule.Owner(owner).Trigger(trigger)
 
 	// get all the non-nil columns and prepare them for the query
 	_c, _i, _v := slice(dominoRule.columns(), 0)
@@ -1736,9 +1736,9 @@ func UpsertByOwnerIDAndTrigger(db pogo.DB, ownerID string, trigger string, domin
 	// sql query
 	sqlstr := `INSERT INTO "public"."domino_rules" (` + strings.Join(_c, ", ") + `) ` +
 		`VALUES (` + strings.Join(_i, ", ") + `) ` +
-		`ON CONFLICT ("owner_id", "trigger") ` +
+		`ON CONFLICT ("owner", "trigger") ` +
 		`DO UPDATE SET ` + strings.Join(_u, ", ") + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1748,17 +1748,17 @@ func UpsertByOwnerIDAndTrigger(db pogo.DB, ownerID string, trigger string, domin
 	// run query
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil && !pogo.IsNoRows(e) {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil && !pogo.IsNoRows(e) {
 		return nil, e
 	}
 
 	return &_dominoRule, nil
 }
 
-// UpsertByOwnerIDAndTrigger inserts a `"public"."domino_rules"`, updating the row if `"owner_id", "trigger"` already exists.
-func (*Model) UpsertByOwnerIDAndTrigger(db pogo.DB, ownerID string, trigger string, dominoRule *Input) (*DominoRule, error) {
+// UpsertByOwnerAndTrigger inserts a `"public"."domino_rules"`, updating the row if `"owner", "trigger"` already exists.
+func (*Model) UpsertByOwnerAndTrigger(db pogo.DB, owner string, trigger string, dominoRule *Input) (*DominoRule, error) {
 	// add values to input, overriding existing keys if present in the input
-	dominoRule = dominoRule.OwnerID(ownerID).Trigger(trigger)
+	dominoRule = dominoRule.Owner(owner).Trigger(trigger)
 
 	// get all the non-nil columns and prepare them for the query
 	_c, _i, _v := slice(dominoRule.columns(), 0)
@@ -1772,9 +1772,9 @@ func (*Model) UpsertByOwnerIDAndTrigger(db pogo.DB, ownerID string, trigger stri
 	// sql query
 	sqlstr := `INSERT INTO "public"."domino_rules" (` + strings.Join(_c, ", ") + `) ` +
 		`VALUES (` + strings.Join(_i, ", ") + `) ` +
-		`ON CONFLICT ("owner_id", "trigger") ` +
+		`ON CONFLICT ("owner", "trigger") ` +
 		`DO UPDATE SET ` + strings.Join(_u, ", ") + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1784,7 +1784,7 @@ func (*Model) UpsertByOwnerIDAndTrigger(db pogo.DB, ownerID string, trigger stri
 	// run query
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil && !pogo.IsNoRows(e) {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil && !pogo.IsNoRows(e) {
 		return nil, e
 	}
 
@@ -1810,7 +1810,7 @@ func UpsertByID(db pogo.DB, id int64, dominoRule *Input) (*DominoRule, error) {
 		`VALUES (` + strings.Join(_i, ", ") + `) ` +
 		`ON CONFLICT ("id") ` +
 		`DO UPDATE SET ` + strings.Join(_u, ", ") + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1820,7 +1820,7 @@ func UpsertByID(db pogo.DB, id int64, dominoRule *Input) (*DominoRule, error) {
 	// run query
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil && !pogo.IsNoRows(e) {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil && !pogo.IsNoRows(e) {
 		return nil, e
 	}
 
@@ -1846,7 +1846,7 @@ func (*Model) UpsertByID(db pogo.DB, id int64, dominoRule *Input) (*DominoRule, 
 		`VALUES (` + strings.Join(_i, ", ") + `) ` +
 		`ON CONFLICT ("id") ` +
 		`DO UPDATE SET ` + strings.Join(_u, ", ") + ` ` +
-		`RETURNING "created_at", "id", "name", "owner_id", "trigger", "updated_at"`
+		`RETURNING "created_at", "id", "name", "owner", "trigger", "updated_at"`
 
 	// log query if we've provided a logger
 	if pogo.Log != nil {
@@ -1856,7 +1856,7 @@ func (*Model) UpsertByID(db pogo.DB, id int64, dominoRule *Input) (*DominoRule, 
 	// run query
 	var _dominoRule DominoRule
 	row := db.QueryRow(context.TODO(), sqlstr, _v...)
-	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.OwnerID, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil && !pogo.IsNoRows(e) {
+	if e := row.Scan(&_dominoRule.CreatedAt, &_dominoRule.ID, &_dominoRule.Name, &_dominoRule.Owner, &_dominoRule.Trigger, &_dominoRule.UpdatedAt); e != nil && !pogo.IsNoRows(e) {
 		return nil, e
 	}
 
@@ -1864,7 +1864,7 @@ func (*Model) UpsertByID(db pogo.DB, id int64, dominoRule *Input) (*DominoRule, 
 }
 
 // slice converts our columns into something the sql driver can understand
-func slice(columns map[string]any, offset int) (c []string, i []string, v []any) {
+func slice(columns map[string]interface{}, offset int) (c []string, i []string, v []interface{}) {
 	n := offset + 1
 	for col, val := range columns {
 		c = append(c, strconv.Quote(col))

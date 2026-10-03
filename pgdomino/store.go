@@ -26,8 +26,8 @@ type store struct {
 
 var _ domino.Store = (*store)(nil)
 
-func (s *store) List(ctx context.Context, ownerID string, triggers ...string) ([]*domino.Rule, error) {
-	filter := dominorule.NewFilter().OwnerID(ownerID)
+func (s *store) List(ctx context.Context, owner string, triggers ...string) ([]*domino.Rule, error) {
+	filter := dominorule.NewFilter().Owner(owner)
 	if len(triggers) > 0 {
 		filter = filter.TriggerIn(triggers...)
 	}
@@ -75,13 +75,13 @@ func (s *store) List(ctx context.Context, ownerID string, triggers ...string) ([
 	return rules, nil
 }
 
-func (s *store) Save(ctx context.Context, ownerID string, r *domino.Rule) error {
+func (s *store) Save(ctx context.Context, owner string, r *domino.Rule) error {
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("pgdomino: unable to begin: %w", err)
 	}
 	defer tx.Rollback(ctx)
-	id, err := saveRule(tx, ownerID, r)
+	id, err := saveRule(tx, owner, r)
 	if err != nil {
 		return err
 	}
@@ -120,9 +120,9 @@ func (s *store) Save(ctx context.Context, ownerID string, r *domino.Rule) error 
 }
 
 // saveRule inserts or updates the rule's row and returns its ID
-func saveRule(tx pgx.Tx, ownerID string, r *domino.Rule) (int64, error) {
+func saveRule(tx pgx.Tx, owner string, r *domino.Rule) (int64, error) {
 	if r.ID == "" {
-		row, err := dominorule.Insert(tx, dominorule.New().OwnerID(ownerID).Name(r.Name).Trigger(r.Trigger))
+		row, err := dominorule.Insert(tx, dominorule.New().Owner(owner).Name(r.Name).Trigger(r.Trigger))
 		if err != nil {
 			return 0, fmt.Errorf("pgdomino: inserting rule: %w", err)
 		}
@@ -134,7 +134,7 @@ func saveRule(tx pgx.Tx, ownerID string, r *domino.Rule) (int64, error) {
 	}
 	rows, err := dominorule.UpdateMany(tx,
 		dominorule.New().Name(r.Name).Trigger(r.Trigger).UpdatedAt(time.Now()),
-		dominorule.NewFilter().ID(id).OwnerID(ownerID),
+		dominorule.NewFilter().ID(id).Owner(owner),
 	)
 	if err != nil {
 		return 0, fmt.Errorf("pgdomino: updating rule: %w", err)
@@ -145,13 +145,13 @@ func saveRule(tx pgx.Tx, ownerID string, r *domino.Rule) (int64, error) {
 	return id, nil
 }
 
-func (s *store) Delete(ctx context.Context, ownerID, id string) error {
+func (s *store) Delete(ctx context.Context, owner, id string) error {
 	ruleID, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return domino.ErrNotFound
 	}
 	// conditions and actions cascade
-	rows, err := dominorule.DeleteMany(s.db, dominorule.NewFilter().ID(ruleID).OwnerID(ownerID))
+	rows, err := dominorule.DeleteMany(s.db, dominorule.NewFilter().ID(ruleID).Owner(owner))
 	if err != nil {
 		return fmt.Errorf("pgdomino: deleting rule: %w", err)
 	}
